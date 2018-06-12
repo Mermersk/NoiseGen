@@ -1,152 +1,66 @@
 
 lovenoise = require("lovenoise")
 modules = lovenoise.modules
--- 2, 0.02, 0.1, math.random(1, 3000), 0.5
+
 require("simple-slider")
+require("ui")
+--require("middleclass")
 
 function love.load()
+	noises = {}
+	noises_index = 1
 
-	map = mapgen(2, 0.02, 0.1, math.random(1, 3000), 0.5, 255, 255, 255, 255, modules.Fractal:new())  -- Eitthvað öðruvisi með love.graphics.points núna, koma skrýtnar linur --lagað með +0.5 var ekki ceneterað
+	dimension_widht_number = 1200
+	dimension_height_number = 800
 
-	octaves_s = newSlider(1300, 50, 150, 50, 1, 100)
-	lacunarity_s = newSlider(1300, 100, 150, 0.5, 0, 5)
-	persistence_s = newSlider(1300, 150, 150, 0.5, 0, 1)
-	seed_s = newSlider(1300, 200, 150, 100, 1, 200)
-	frequency_s = newSlider(1300, 250, 150, 0.5, 0, 1)
-
-	r_s = newSlider(1300, 300, 150, 255, 1, 255) --RGBA inputs
-	g_s = newSlider(1300, 350, 150, 255, 1, 255)
-	b_s = newSlider(1300, 400, 150, 255, 1, 255)
-	a_s = newSlider(1300, 450, 150, 255, 1, 255)
-
-	--suc, err = file:write("skrift")
-
-	--file:close()
-
-
-	noise_types = {"Fractal", "Billow", "Ridged Multi"}
-	i = 1;
-	noise_selected = noise_types[i]
-	noise = modules.Fractal:new()
-
-
+	map = mapgen(2, 0.02, 0.1, math.random(1, 3000), 0.5, 1, 1, 1, 1, modules.Fractal:new(), dimension_widht_number, dimension_height_number)  -- Eitthvað öðruvisi með love.graphics.points núna, koma skrýtnar linur --lagað með +0.5 var ekki ceneterað
+	table.insert(noises, map)
+	uiLoad()
 end
 
 function love.update(dt)
 
 	mx, my = love.mouse.getPosition()
-
-
-	octaves_s:update()
-	lacunarity_s:update()
-	persistence_s:update()
-	seed_s:update()
-	frequency_s:update()
-
-	r_s:update()
-	g_s:update()
-	b_s:update()
-	a_s:update()
-
-	r = r_s:getValue()
-	g = g_s:getValue()
-	b = b_s:getValue()
-	a = a_s:getValue()
-
-	octaves = octaves_s:getValue()
-	lacunarity = lacunarity_s:getValue()
-	persistence = persistence_s:getValue()
-	seed = seed_s:getValue()
-	frequency = frequency_s:getValue()
-
+	uiUpdate(dt)
 
 end
 
 function love.mousepressed(x, y, button, istouch)
 
-	if button == 1 and x > 1205 and x < 1235 and y > 475 and y < 500 and i ~= 1 then
-		i = i - 1
-	end
-
-	if button == 1 and x > 1200 + 160 and x < 1230 + 160 and y > 475 and y < 500 and i ~= 3 then
-		i = i + 1
-	end
-
-	noise_selected = noise_types[i]
-	if noise_types[1] == noise_selected then
-		noise =  modules.Fractal:new()
-	end
-	if noise_types[2] == noise_selected then
-		noise = modules.Billow:new()
-	end
-
-	if noise_types[3] == noise_selected then
-		noise = modules.RidgedMulti:new()
-	end
-
+	uiMouse(x, y, button, istouch)
 
 end
 
 function love.keypressed(key)
    if key == "space" then
-      map = mapgen(octaves, lacunarity, persistence, seed, frequency, r, g, b, a, noise)
+      map = mapgen(octaves, lacunarity, persistence, seed, frequency, r, g, b, a, noise, dimension_widht_number, dimension_height_number)
+			table.insert(noises, map)
+			noises_index = noises_index + 1
    end
+
+	 if key == "left" and noises_index > 1 then
+		 noises_index = noises_index - 1
+	 end
+	 if key == "right" and noises_index < #noises then
+		 noises_index = noises_index + 1
+	 end
+
+
+	 uiKeypressed(key)
 end
 
 
 function love.draw()
 
-	love.graphics.draw(map)
-	love.graphics.rectangle("fill", 15, 15, 35, 25)
-	love.graphics.setColor(0, 0, 0)
-	--love.graphics.print(map_r, 20, 20)
-	love.graphics.setColor(255, 255, 255, 255)
-
-	octaves_s:draw()
-	love.graphics.print("Octaves", 1265, 25)
-	love.graphics.print(octaves, 1325, 25)
-
-	lacunarity_s:draw()
-	love.graphics.print("Lacunarity", 1265, 75)
-	love.graphics.print(lacunarity, 1340, 75)
-
-	persistence_s:draw()
-	love.graphics.print("Persistence", 1265, 125)
-	love.graphics.print(persistence, 1345, 125)
-
-	seed_s:draw()
-	love.graphics.print("Seed", 1265, 175)
-	love.graphics.print(seed, 1320, 175)
-
-	frequency_s:draw()
-	love.graphics.print("frequency", 1265, 225)
-	love.graphics.print(frequency, 1340, 225)
-
-	love.graphics.print("Red", 1290, 275)
-	love.graphics.print(r, 1320, 275)
-	r_s:draw()
-
-	love.graphics.print("Green", 1290, 325)
-	love.graphics.print(g, 1340, 325)
-	g_s:draw()
-
-	love.graphics.print("Blue", 1290, 375)
-	love.graphics.print(b, 1320, 375)
-	b_s:draw()
-
-	love.graphics.print("Alpha", 1290, 425)
-	love.graphics.print(a, 1340, 425)
-	a_s:draw()
-
-	love.graphics.print(noise_selected, 1270, 480)
-	love.graphics.polygon("fill", 1235, 475, 1235, 500, 1205, 485)
-	love.graphics.polygon("fill", 1200+160, 475, 1200+160, 500, 1230+160, 485)
-
-
+	love.graphics.draw(noises[noises_index])
+	uiDraw()
+	love.graphics.printf("Your image will be saved to: " .. love.filesystem.getSaveDirectory(), 1210, 630, 175, "center")
+	--popUp("Name of Image file: ", 500, 500)
+	love.graphics.printf("Spacebar: Generate new Image. Left and right Arrows: cycle through previous images.", 1210, 700, 175, "center")
 
 end
 
-function mapgen(octaves, lacunarity, persistence, seed, frequency, r, g, b, a, noise)  --function til að setja stuff á góðu noise mappið okkar, eins og snjó og tré.....
+function mapgen(octaves, lacunarity, persistence, seed, frequency, r, g, b, a, noise, widht, height)  --function til að setja stuff á góðu noise mappið okkar, eins og snjó og tré.....
 
 	file = love.filesystem.newFile("data.txt")
 	file:open("w")
@@ -163,14 +77,16 @@ function mapgen(octaves, lacunarity, persistence, seed, frequency, r, g, b, a, n
 	noise:setLacunarity(lacunarity)--0 til 1
 	noise:setPersistence(persistence)--0 til 1																	--:new(1 til endalaust, 0 til 1, 0 til 1, veit ekki)
 
-	Mapdata = love.image.newImageData(1201, 801)
+	Mapdata = love.image.newImageData(widht, height)
 
-
-
-	for x = 1, 1200 do
-	for y = 1, 800 do
-		info = noise:getValue(x, y)
-		Mapdata:setPixel(x, y, r*info, g*info, b*info, a) --255 , 100, 45, 255
+	for x = 1, widht-1 do
+	for y = 1, height-1 do
+		info = math.abs(noise:getValue(x, y))
+		if include_alpha == true then
+			Mapdata:setPixel(x, y, r*info, g*info, b*info, a*info) --255 , 100, 45, 255
+		else
+			Mapdata:setPixel(x, y, r*info, g*info, b*info, a)
+		end
 		--suc, err = file:write(info .. "\n")
 		---------
 
