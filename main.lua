@@ -1,9 +1,9 @@
 
-lovenoise = require("lovenoise")
+lovenoise = require("third-party/lovenoise")
 modules = lovenoise.modules
 
-require("simple-slider")
-require("ui")
+require("third-party/simple-slider")
+require("Scripts/ui")
 --require("middleclass")
 
 function love.load()
@@ -16,12 +16,15 @@ function love.load()
 	map = mapgen(2, 0.02, 0.1, math.random(1, 3000), 0.5, 1, 1, 1, 1, modules.Fractal:new(), dimension_widht_number, dimension_height_number)  -- Eitthvað öðruvisi með love.graphics.points núna, koma skrýtnar linur --lagað með +0.5 var ekki ceneterað
 	table.insert(noises, map)
 	uiLoad()
+
 end
 
 function love.update(dt)
 
 	mx, my = love.mouse.getPosition()
 	uiUpdate(dt)
+
+	w_width, w_height = love.graphics.getDimensions()
 
 end
 
@@ -57,7 +60,8 @@ function love.draw()
 	love.graphics.printf("Your image will be saved to: " .. love.filesystem.getSaveDirectory(), 1210, 630, 175, "center")
 	--popUp("Name of Image file: ", 500, 500)
 	love.graphics.printf("Spacebar: Generate new Image. Left and right Arrows: cycle through previous images.", 1210, 700, 175, "center")
-
+	love.graphics.print(w_width, 0, 0)
+	love.graphics.print(w_height, 0, 30)
 end
 
 function mapgen(octaves, lacunarity, persistence, seed, frequency, r, g, b, a, noise, widht, height)  --function til að setja stuff á góðu noise mappið okkar, eins og snjó og tré.....
